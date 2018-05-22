@@ -53,4 +53,5 @@ RUN git clone https://github.com/silmae/fpipy.git \
 # Set the default entrypoint to Bash for the time being. Might make sense to
 # change this to /usr/bin/python3 unless we introduce a script to simplify the
 # process of running experiments, etc.
-ENTRYPOINT /bin/bash
+ENTRYPOINT ["/bin/sh", "-c"]
+CMD ["bash"]
