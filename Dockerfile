@@ -30,7 +30,9 @@ RUN apt-get update && apt-get install --yes \
 &&  rm -rf /var/lib/apt/lists/*
 
 # Install required Python 3 packages.
-RUN pip3 install --no-cache-dir \
+RUN apt-get update && apt-get install --yes \
+    python3-pyqt5 \
+&&  pip3 install --no-cache-dir \
     click \
     gdal==2.2.2 \
     h5py \
