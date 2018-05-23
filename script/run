@@ -20,13 +20,12 @@ docker run \
   --interactive \
   --device="/dev/dri:/dev/dri" \
   --device="/dev/snd:/dev/snd" \
-  --env="DISPLAY" \
-  --env="QT_LOGGING_RULES=*=false" \
-  --env="QT_X11_NO_MITSHM=1" \
-  --env="MPLBACKEND=qt5agg" \
+  --env-file="${parent_dir}/env.list" \
   --volume="/tmp/.X11-unix:/tmp/.X11-unix" \
-  "$image_tag" \
-  "$@"
+  --volume="${parent_dir}/notebooks:/root/notebooks" \
+  --volume="${parent_dir}/python:/root/python" \
+  $image_tag \
+  ${*:+"$*"}
 
 # Revoke access to the host X server.
 xhost -local:`container_hostname` > /dev/null
