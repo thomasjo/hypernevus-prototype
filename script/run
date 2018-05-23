@@ -3,29 +3,16 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 parent_dir="$( cd "${script_dir}/.." && pwd -P )"
 
-image_tag="hypernevus:latest"
-
-container_hostname () {
-  docker inspect \
-    --format="{{ .ContainerConfig.Hostname }}" \
-    "$image_tag"
-}
+# The name of the target service.
+service_name="default"
 
 # Give the container access to the host X server.
-xhost +local:`container_hostname` > /dev/null
+container_hostname="xorg-container"
+xhost +local:$container_hostname > /dev/null
 
-docker run \
-  --rm \
-  --tty \
-  --interactive \
-  --device="/dev/dri:/dev/dri" \
-  --device="/dev/snd:/dev/snd" \
-  --env-file="${parent_dir}/env.list" \
-  --volume="/tmp/.X11-unix:/tmp/.X11-unix" \
-  --volume="${parent_dir}/notebooks:/root/notebooks" \
-  --volume="${parent_dir}/python:/root/python" \
-  $image_tag \
-  ${*:+"$*"}
+# Run the specified one-off command on the target service, and taking care to
+# remove the container after the command has exited.
+docker-compose run --rm $service_name $@
 
 # Revoke access to the host X server.
-xhost -local:`container_hostname` > /dev/null
+xhost -local:$container_hostname > /dev/null

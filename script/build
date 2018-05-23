@@ -3,6 +3,5 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 parent_dir="$( cd "${script_dir}/.." && pwd -P )"
 
-image_tag="hypernevus:latest"
-
-docker build --squash --tag="$image_tag" "$parent_dir"
+cd "${parent_dir}"
+docker-compose build

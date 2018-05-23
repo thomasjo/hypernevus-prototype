@@ -1,0 +1,16 @@
+version: '3.6'
+
+services:
+  default:
+    # Define additional configuration values required for connecting the
+    # container to the host X server. Note that this still requires giving the
+    # root user in the container local access by running `xhost +local:root` or
+    # something slightly more elaborate for improved security.
+    hostname: xorg-container
+    devices:
+      - /dev/dri:/dev/dri
+      - /dev/snd:/dev/snd
+    environment:
+      - DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
