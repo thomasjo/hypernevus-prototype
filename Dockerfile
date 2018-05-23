@@ -50,6 +50,12 @@ RUN git clone https://github.com/silmae/fpipy.git \
 &&  cd fpipy && python3 setup.py install \
 &&  cd .. && rm -rf fpipy
 
+# Explictly set the working directory to something reasonable.
+WORKDIR /root
+
+# Copy all project files into image.
+COPY notebooks python /root/
+
 # Set the default entrypoint to Bash for the time being. Might make sense to
 # change this to /usr/bin/python3 unless we introduce a script to simplify the
 # process of running experiments, etc.
