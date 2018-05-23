@@ -3,16 +3,20 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 parent_dir="$( cd "${script_dir}/.." && pwd -P )"
 
+container_hostname () {
+  local yaml_file="${parent_dir}/docker-compose.override.yaml"
+  sed -nr 's/.*hostname: (.*)/\1/p' $yaml_file
+}
+
 # The name of the target service.
 service_name="default"
 
 # Give the container access to the host X server.
-container_hostname="xorg-container"
-xhost +local:$container_hostname > /dev/null
+xhost +local:`container_hostname` > /dev/null
 
 # Run the specified one-off command on the target service, and taking care to
 # remove the container after the command has exited.
 docker-compose run --rm $service_name $@
 
 # Revoke access to the host X server.
-xhost -local:$container_hostname > /dev/null
+xhost -local:`container_hostname` > /dev/null
