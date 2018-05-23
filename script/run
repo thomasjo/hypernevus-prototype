@@ -3,9 +3,13 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 parent_dir="$( cd "${script_dir}/.." && pwd -P )"
 
+# Add vendored binaries to search path.
+PATH="${parent_dir}/vendor/bin"${PATH:+:$PATH}
+
+# Attempt to read hostname from the service configuration.
 container_hostname () {
-  local yaml_file="${parent_dir}/docker-compose.override.yaml"
-  sed -nr 's/.*hostname: (.*)/\1/p' $yaml_file
+  local override_file="${parent_dir}/*.override.yaml"
+  yq read $override_file "services.${service_name}.hostname"
 }
 
 # The name of the target service.
