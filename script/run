@@ -3,9 +3,6 @@
 script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
 parent_dir="$( cd "${script_dir}/.." && pwd -P )"
 
-# Add vendored binaries to search path.
-PATH="${parent_dir}/vendor/bin"${PATH:+:$PATH}
-
 # Attempt to read hostname from the service configuration.
 container_hostname () {
   local override_file="${parent_dir}/*.override.yaml"
