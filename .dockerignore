@@ -1,0 +1,10 @@
+# Project directories.
+.git
+data
+script
+vendor
+
+# Project files.
+.envrc
+.gitignore
+README.md
