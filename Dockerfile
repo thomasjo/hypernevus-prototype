@@ -67,14 +67,10 @@ RUN pip3 install --no-cache-dir \
 # Copy project files into the image.
 ADD notebooks /root/notebooks
 
-# Expose ports used by Jupyter Notebook, etc.
-EXPOSE 8888
-
 # Launch Jupyter Notebook by default.
 # NOTE: We might want to extract this into a shell script.
 CMD jupyter-notebook \
     --allow-root \
     --no-browser \
-    --ip="*" \
     --port=8888 \
     --notebook-dir="/root/notebooks"

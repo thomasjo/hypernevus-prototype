@@ -22,14 +22,11 @@ services:
       context: .
       target: notebook
 
-    # environment:
-    #   -
+    # Use host network mode to avoid needing to expose ports, etc.
+    network_mode: host
 
     # Mount host paths to simplify development workflows.
     volumes:
       - ./data:/root/data:ro
       - ./python:/root/python:ro
       - ./notebooks:/root/notebooks
-
-    ports:
-      - 8888:8888
