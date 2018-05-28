@@ -1,6 +1,6 @@
 # Intended to be used together with a custom TensorFlow container image;
 # https://github.com/thomasjo/dockerfiles/tree/master/tensorflow
-FROM tensorflow:latest
+FROM tensorflow:latest AS default
 
 # Ensure all base packages are up-to-date.
 RUN apt-get update && apt-get upgrade --yes
@@ -36,7 +36,6 @@ RUN apt-get update && apt-get install --yes \
     click \
     gdal==2.2.2 \
     h5py \
-    jupyter \
     keras \
     matplotlib \
     pandas \
@@ -53,5 +52,29 @@ RUN git clone https://github.com/silmae/fpipy.git \
 # Explictly set the working directory to something reasonable.
 WORKDIR /root
 
-# Copy all project files into image.
-COPY notebooks python /root/
+# Copy project files into the image.
+ADD python /root/python
+
+# ---------------------------------------------------------------------------- #
+
+# Extend the base image with Jupyter Notebook support.
+FROM default AS notebook
+
+# Install required Python 3 packages.
+RUN pip3 install --no-cache-dir \
+    jupyter
+
+# Copy project files into the image.
+ADD notebooks /root/notebooks
+
+# Expose ports used by Jupyter Notebook, etc.
+EXPOSE 8888
+
+# Launch Jupyter Notebook by default.
+# NOTE: We might want to extract this into a shell script.
+CMD jupyter-notebook \
+    --allow-root \
+    --no-browser \
+    --ip="*" \
+    --port=8888 \
+    --notebook-dir="/root/notebooks"
