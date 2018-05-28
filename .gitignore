@@ -1,2 +1,5 @@
 # Project directories.
 data
+
+# Generated directories.
+.ipynb_checkpoints
