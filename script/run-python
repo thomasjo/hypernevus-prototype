@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
+parent_dir="$( cd "${script_dir}/.." && pwd -P )"
+
+run () {
+  "${script_dir}/run" $@
+}
+
+run python3 $@
