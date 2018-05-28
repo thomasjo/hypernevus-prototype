@@ -6,12 +6,6 @@ services:
       context: .
       target: default
 
-    # Use Qt5 as the default backend for matplotlib.
-    environment:
-      - MPLBACKEND=qt5agg
-      - QT_LOGGING_RULES=*=false
-      - QT_X11_NO_MITSHM=1
-
     # Mount host paths to simplify development workflows.
     volumes:
       - ./data:/root/data:ro
