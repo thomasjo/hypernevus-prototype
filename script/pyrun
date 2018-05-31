@@ -1,10 +1,6 @@
 #!/usr/bin/env bash
 
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
-parent_dir="$( cd "${script_dir}/.." && pwd -P )"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -L)"
+parent_dir="$(cd "${script_dir}/.." && pwd -L)"
 
-run () {
-  "${script_dir}/run" $@
-}
-
-run python3 $@
+exec "${script_dir}/run" python3 $@

@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
 
-script_dir="$( cd "$( dirname "${BASH_SOURCE[0]}" )" && pwd -P )"
-parent_dir="$( cd "${script_dir}/.." && pwd -P )"
+script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -L)"
+parent_dir="$(cd "${script_dir}/.." && pwd -L)"
 
-cd "${parent_dir}"
-docker-compose build
+docker-compose --project-directory "${parent_dir}" build
