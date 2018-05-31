@@ -60,16 +60,16 @@ def process_image(image_hdr_path):
 
         npeaks = layer_band_images.shape[2]
 
-        layer_band_images = layer_band_images[y:(y + output_height), x:(x + output_width)]
-        ref_band_images = ref_band_images[y:(y + output_height), x:(x + output_width)]
+        layer_band_images = layer_band_images[y:y+output_height, x:x+output_width]
+        ref_band_images = ref_band_images[y:y+output_height, x:x+output_width]
 
         for peak_index in range(npeaks):
             idx = band_index_offset + peak_index
             wavelengths[idx] = layer_wavelengths[peak_index]
             uncorrected_images[..., idx] = layer_band_images[..., peak_index]
             reference_images[..., idx] = ref_band_images[..., peak_index]
-            corrected_images[..., idx] = layer_band_images[..., peak_index] \
-                                       / ref_band_images[..., peak_index]
+            corrected_images[..., idx] = (layer_band_images[..., peak_index] /
+                                          ref_band_images[..., peak_index])
 
         band_index_offset += npeaks
 
