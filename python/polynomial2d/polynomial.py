@@ -169,7 +169,7 @@ def polygrid2d(x, y, c):
 
     This function returns the values:
 
-    .. math:: p(a,b) = \sum_{i,j} c_{i,j} * a^i * b^j
+    .. math:: p(a,b) = \\sum_{i,j} c_{i,j} * a^i * b^j
 
     where the points `(a, b)` consist of all pairs formed by taking
     `a` from `x` and `b` from `y`. The resulting points form a grid with
@@ -193,7 +193,7 @@ def polygrid2d(x, y, c):
         unchanged and, if it isn't an ndarray, it is treated as a scalar.
     c : array_like
         Array of coefficients ordered so that the coefficients for terms of
-        degree i,j are contained in ``c[i,j]``. If `c` has dimension
+        degree i,j are contained in `c[i,j]`. If `c` has dimension
         greater than two the remaining indices enumerate multiple sets of
         coefficients.
 
