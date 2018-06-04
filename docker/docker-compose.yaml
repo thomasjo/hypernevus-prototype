@@ -4,6 +4,7 @@ services:
   default:
     build:
       context: .
+      dockerfile: docker/Dockerfile
       target: default
 
     # Mount host paths to simplify development workflows.
@@ -14,6 +15,7 @@ services:
   notebook:
     build:
       context: .
+      dockerfile: docker/Dockerfile
       target: notebook
 
     # Use host network mode to avoid needing to expose ports, etc.

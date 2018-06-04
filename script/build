@@ -3,4 +3,10 @@
 script_dir="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd -L)"
 parent_dir="$(cd "${script_dir}/.." && pwd -L)"
 
-docker-compose --project-directory "${parent_dir}" build
+docker_dir="${parent_dir}/docker"
+
+docker-compose \
+  --project-directory "${parent_dir}" \
+  --file "${docker_dir}/docker-compose.yaml" \
+  --file "${docker_dir}/docker-compose.xorg.yaml" \
+  build
