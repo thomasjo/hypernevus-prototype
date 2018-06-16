@@ -20,21 +20,16 @@ def process_image(image_hdr_path):
     rgb_layer = get_truecolor_image(raw_cube)
     ref_rgb_layer = get_truecolor_image(raw_ref_cube)
 
-    rgb_layer = rgb_layer[y:(y + output_height), x:(x + output_width)]
-    ref_rgb_layer = ref_rgb_layer[y:(y + output_height), x:(x + output_width)]
+    rgb_layer = rgb_layer[y:y+output_height, x:x+output_width]
+    ref_rgb_layer = ref_rgb_layer[y:y+output_height, x:x+output_width]
     assert rgb_layer.shape == ref_rgb_layer.shape
 
     nlayers = nlayers - 1  # Skip the last layer, which is RGB.
     max_bands = nlayers * 3
 
-    # dark_layer = get_dark_layer(raw_cube, hdt)
-    # cube = raw_cube - np.atleast_3d(dark_layer)
-    # cube = raw_cube
     cube = raw_cube[..., 1:] - np.atleast_3d(raw_cube[..., 0])
     cube[cube < 0] = 0
 
-    # dark_layer = get_dark_layer(ref_cube, hdt)
-    # ref_cube = ref_cube - np.atleast_3d(dark_layer)
     ref_cube = raw_ref_cube[..., 1:] - np.atleast_3d(raw_ref_cube[..., 0])
     ref_cube[ref_cube < 0] = 0
 
@@ -42,8 +37,6 @@ def process_image(image_hdr_path):
     corrected_images = np.ma.empty((output_height, output_width, max_bands))
     uncorrected_images = np.ma.empty_like(corrected_images)
     reference_images = np.ma.empty_like(corrected_images)
-
-    assert corrected_images.shape[0:2] == rgb_layer.shape[0:2]
 
     band_index_offset = 0
 
