@@ -104,9 +104,9 @@ def get_truecolor_image(cube):
     return demosaic(cube[:,:,-1])
 
 # -----------------------------------------------------------------------------
-prefix = '/data/Pulheim'
-file_name = 'SocSecID_mela3_Date_20180221_Time_141045'
-file_path = '{0}/{1}/{1}_RawMeasurementCube.hdr'.format(prefix, file_name)
+prefix = '/root/data/examples'
+file_name = 'd5d370809f55d2c427930e8d8bd123295013d594'
+file_path = '{0}/{1}/RawMeasurementCube.hdr'.format(prefix, file_name)
 # -----------------------------------------------------------------------------
 
 raw_cube = envi.open(file_path)
@@ -175,5 +175,7 @@ rgb = get_truecolor_image(raw_cube)
 
 # NOTE: Not code from Revenio. Added to aid with debugging.
 rgb = rgb / rgb[:, ].max()
+plt.figure()
 plt.imshow(rgb)
-plt.savefig('/images/fig.png')
+# plt.savefig('/images/fig.png')
+plt.show()
