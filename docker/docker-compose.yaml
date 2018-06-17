@@ -11,6 +11,7 @@ services:
     volumes:
       - ./data:/root/data:ro
       - ./python:/root/python
+      - ./output:/root/output
 
   notebook:
     build:
