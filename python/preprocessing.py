@@ -75,7 +75,7 @@ def crop(target):
         images = target.images[60:560, 220:720]
         cropped = RadianceCube(images, target.wavelengths)
     else:
-        raise Error("Unsupported type for argument 'target'.")
+        raise Exception("Unsupported type for argument 'target'.")
 
     return cropped
 
