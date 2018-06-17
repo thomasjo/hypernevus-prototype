@@ -1,10 +1,18 @@
 import matplotlib.pyplot as plt
 
-from preprocessing import *
 from pathlib import Path
+from preprocessing import (
+    convert_to_radiance_cube,
+    crop,
+    extract_truecolor_image,
+    load_raw_cube,
+    normalize,
+)
 
 
 def main():
+    fig_dir = Path("/root/output/fig")
+
     data_dir = Path("/root/data/examples")
     # cube_dir = data_dir / "a965ccdcc83d466386649b1a21a927b1078a71bb"
     # cube_dir = data_dir / "d5d370809f55d2c427930e8d8bd123295013d594"
@@ -18,26 +26,27 @@ def main():
 
     plt.figure()
     plt.imshow(truecolor_image)
+    plt.savefig(str(fig_dir / "truecolor.eps"), dpi=1200, bbox_inches="tight")
     plt.show()
 
     radiance_cube = convert_to_radiance_cube(raw_cube)
     radiance_cube = crop(radiance_cube)
 
-    print(
-        'radiance cube:',
-        radiance_cube.images.min(),
-        radiance_cube.images.max(),
-    )
+    print('radiance cube:',
+          radiance_cube.images.min(),
+          radiance_cube.images.max())
 
     image_index = 80
     radiance_image = radiance_cube.images[..., image_index]
     radiance_image = radiance_image / radiance_image.max()
     wavelength = radiance_cube.wavelengths[image_index]
 
-    print('wavelength:', wavelength)
+    print('wavelength:',
+          wavelength)
 
     plt.figure()
     plt.imshow(radiance_image)
+    plt.savefig(str(fig_dir / "radiance.eps"), dpi=1200, bbox_inches="tight")
     plt.show()
 
     # ---
@@ -48,25 +57,22 @@ def main():
     flat_radiance_cube = convert_to_radiance_cube(flat_cube)
     flat_radiance_cube = crop(flat_radiance_cube)
 
-    print(
-        'flat radiance cube:',
-        flat_radiance_cube.images.min(),
-        flat_radiance_cube.images.max(),
-    )
+    print('flat radiance cube:',
+          flat_radiance_cube.images.min(),
+          flat_radiance_cube.images.max())
 
     normalized_cube = normalize(radiance_cube, flat_radiance_cube)
 
-    print(
-        'normalized cube:',
-        normalized_cube.images.min(),
-        normalized_cube.images.max(),
-    )
+    print('normalized cube:',
+          normalized_cube.images.min(),
+          normalized_cube.images.max())
 
     normalized_image = normalized_cube.images[..., image_index]
     normalized_image = normalized_image / normalized_image.max()
 
     plt.figure()
     plt.imshow(normalized_image)
+    plt.savefig(str(fig_dir / "normalized.eps"), dpi=1200, bbox_inches="tight")
     plt.show()
 
 
