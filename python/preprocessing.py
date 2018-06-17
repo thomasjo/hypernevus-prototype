@@ -3,7 +3,6 @@ import spectral.io.envi as envi
 
 from collections import namedtuple
 from configparser import ConfigParser
-from pathlib import Path
 
 
 RawCube = namedtuple("RawCube", ["data", "metadata"])
@@ -13,7 +12,8 @@ RadianceCube = namedtuple("RadianceCube", ["images", "wavelengths"])
 
 
 def load_raw_cube(hdr_file):
-    data = envi.open(str(hdr_file)).asarray(np.float)
+    data = envi.open(hdr_file).asarray()
+    data = data.astype(np.float64)
     metadata = _read_metadata(hdr_file)
     cube = RawCube(data, metadata)
 
@@ -28,16 +28,25 @@ def extract_truecolor_image(raw_cube):
     return rgb_image
 
 
-# def subtract_dark_frame(cube):
-#     dark_frame = cube[..., 0]
-#     data = cube.data
-#     data[..., 1:-1] -= dark_frame
-#
-#     return cube
+def _subtract_dark_frame(cube):
+    all_frames = cube.data.copy()
+
+    # Remove the dark frame from all frames except the dark frame itself, and
+    # the truecolor (RGB) frame; first and last frame, respectively.
+    dark_frame = np.atleast_3d(all_frames[..., 0])
+    all_frames[..., 1:-1] -= dark_frame
+
+    # Negative values are physically impossible, so take care of offenders.
+    all_frames[all_frames < 0] = 0
+
+    denoised_cube = RawCube(all_frames, cube.metadata)
+
+    return denoised_cube
 
 
 def convert_to_radiance_cube(raw_cube):
-    dark_frame = raw_cube.data[..., 0]
+    # Denoise the cube by subtracting the dark frame.
+    raw_cube = _subtract_dark_frame(raw_cube)
 
     images = []
     wavelengths = []
@@ -47,11 +56,12 @@ def convert_to_radiance_cube(raw_cube):
         if band_data is None:
             continue
 
-        images.append(band_data.images)
+        images.extend(band_data.images)
         wavelengths.extend(band_data.wavelengths)
 
-    images = np.dstack(images)
-    wavelengths = wavelengths.sort()
+    sort_idx = np.argsort(wavelengths).squeeze()
+    images = np.dstack(images)[..., sort_idx].squeeze()
+    wavelengths = np.sort(np.hstack(wavelengths)).squeeze()
 
     radiance_cube = RadianceCube(images, wavelengths)
 
@@ -70,8 +80,13 @@ def crop(target):
     return cropped
 
 
-def normalize():
-    pass
+def normalize(cube, reference_cube):
+    normalized_cube = RadianceCube(
+        cube.images / reference_cube.images,
+        cube.wavelengths,
+    )
+
+    return normalized_cube
 
 
 def _read_metadata(hdr_file):
@@ -94,6 +109,7 @@ def _demosaic(bayer_frame):
 
 def bands_from_layer(cube, layer_index):
     hdt_section = cube.metadata['Image{}'.format(layer_index + 1)]
+
     npeaks = hdt_section.getint('Npeaks')
     if npeaks < 1:
         return None
@@ -106,44 +122,15 @@ def bands_from_layer(cube, layer_index):
     rgb_frame = _demosaic(bayer_frame)
 
     usable_wavelengths = wavelengths[0:npeaks]
-    band_images = np.matmul(rgb_frame, sinvs.T[:, 0:npeaks])
-    band_images /= exposure
+    band_images = np.matmul(rgb_frame, sinvs.T[..., 0:npeaks]) / exposure
 
-    band_data = BandData(band_images, usable_wavelengths)
+    band_data = BandData(
+        np.split(band_images, npeaks, axis=2),
+        np.split(usable_wavelengths, npeaks, axis=0),
+    )
 
     return band_data
 
 
 def convert_to_array(raw_string):
     return np.array([float(x) for x in raw_string.strip('"').split()])
-
-
-# TODO: Temporary test. Remove ASAP.
-if __name__ == "__main__":
-    import matplotlib.pyplot as plt
-
-    data_dir = Path("/root/data/examples")
-    cube_dir = data_dir / "d5d370809f55d2c427930e8d8bd123295013d594"
-    raw_hdr_file = cube_dir / "RawMeasurementCube.hdr"
-    raw_cube = load_raw_cube(raw_hdr_file)
-
-    truecolor_image = extract_truecolor_image(raw_cube)
-    truecolor_image = crop(truecolor_image)
-    truecolor_image = truecolor_image / truecolor_image.max()
-
-    plt.figure()
-    plt.imshow(truecolor_image)
-    plt.show()
-
-    radiance_cube = convert_to_radiance_cube(raw_cube)
-    radiance_cube = crop(radiance_cube)
-    print(radiance_cube.wavelengths)
-
-    image_index = 40
-    radiance_image = radiance_cube.images[..., image_index]
-    wavelength = radiance_cube.wavelengths[image_index]
-    print(wavelength)
-
-    plt.figure()
-    plt.imshow(radiance_image)
-    plt.show()
