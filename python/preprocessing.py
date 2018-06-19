@@ -13,7 +13,7 @@ RadianceCube = namedtuple("RadianceCube", ["images", "wavelengths"])
 
 def load_raw_cube(hdr_file):
     data = envi.open(hdr_file).asarray()
-    data = data.astype(np.float64)
+    data = data.astype(float)
     metadata = _read_metadata(hdr_file)
     cube = RawCube(data, metadata)
 
@@ -24,17 +24,20 @@ def extract_truecolor_image(raw_cube):
     # The RGB exposure is stored at the end of the cube, depth-wise.
     rgb_frame = raw_cube.data[:, :, -1]
     rgb_image = _demosaic(rgb_frame)
+    rgb_image = crop(rgb_image)
 
     return rgb_image
 
 
 def _subtract_dark_frame(cube):
-    all_frames = cube.data.copy()
+    # all_frames = cube.data.copy()
 
     # Remove the dark frame from all frames except the dark frame itself, and
     # the truecolor (RGB) frame; first and last frame, respectively.
-    dark_frame = np.atleast_3d(all_frames[..., 0])
-    all_frames[..., 1:-1] -= dark_frame
+    # dark_frame = np.atleast_3d(all_frames[..., 0])
+    # all_frames[..., 1:-1] -= dark_frame
+    dark_frame = np.atleast_3d(cube.data[..., 0])
+    all_frames = cube.data[..., 1:-1] - dark_frame
 
     # Negative values are physically impossible, so take care of offenders.
     all_frames[all_frames < 0] = 0
@@ -47,16 +50,19 @@ def _subtract_dark_frame(cube):
 def convert_to_radiance_cube(raw_cube):
     # Denoise the cube by subtracting the dark frame.
     raw_cube = _subtract_dark_frame(raw_cube)
+    print(raw_cube.data.shape)
 
     images = []
     wavelengths = []
 
-    for layer_index in range(1, 85):
-        band_data = bands_from_layer(raw_cube, layer_index)
+    for layer_index in range(0, 85):
+        band_data = _bands_from_layer(raw_cube, layer_index)
         if band_data is None:
             continue
 
-        images.extend(band_data.images)
+        # images.extend(band_data.images
+        for image in band_data.images:
+            images.append(image)
         wavelengths.extend(band_data.wavelengths)
 
     sort_idx = np.argsort(wavelengths).squeeze()
@@ -107,7 +113,7 @@ def _demosaic(bayer_frame):
     return rgb
 
 
-def bands_from_layer(cube, layer_index):
+def _bands_from_layer(cube, layer_index):
     hdt_section = cube.metadata['Image{}'.format(layer_index + 1)]
 
     npeaks = hdt_section.getint('Npeaks')
@@ -119,10 +125,11 @@ def bands_from_layer(cube, layer_index):
     sinvs = hdt_section.getarray('Sinvs').reshape((3, 3))
 
     bayer_frame = cube.data[..., layer_index]
-    rgb_frame = _demosaic(bayer_frame)
+    rgb_image = _demosaic(bayer_frame)
+    rgb_image = crop(rgb_image)
 
     usable_wavelengths = wavelengths[0:npeaks]
-    band_images = np.matmul(rgb_frame, sinvs.T[..., 0:npeaks]) / exposure
+    band_images = np.matmul(rgb_image, sinvs.T[..., 0:npeaks]) / exposure
 
     band_data = BandData(
         np.split(band_images, npeaks, axis=2),
