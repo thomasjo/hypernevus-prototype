@@ -10,6 +10,7 @@ services:
     # Mount host paths to simplify development workflows.
     volumes:
       - ./data:/root/data:ro
+      - ./cpp:/root/cpp
       - ./python:/root/python
       - ./output:/root/output
 
