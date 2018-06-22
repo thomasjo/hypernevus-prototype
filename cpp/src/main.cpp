@@ -13,20 +13,19 @@ int main() {
   GDALAllRegister();
 
   // Open a GDAL dataset.
-  auto file_path = "/root/data/examples/a965ccdcc83d466386649b1a21a927b1078a71bb/RawMeasurementCube.dat";
-  auto dataset = static_cast<GDALDataset*>(GDALOpen(file_path, GA_ReadOnly));
+  auto const file_path = "/root/data/examples/a965ccdcc83d466386649b1a21a927b1078a71bb/RawMeasurementCube.dat";
+  auto const dataset = static_cast<GDALDataset*>(GDALOpen(file_path, GA_ReadOnly));
 
   // Grab raster metadata.
-  auto raster_width = dataset->GetRasterXSize();
-  auto raster_height = dataset->GetRasterYSize();
-  auto raster_bands = dataset->GetRasterCount();
+  auto const raster_width = dataset->GetRasterXSize();
+  auto const raster_height = dataset->GetRasterYSize();
+  auto const raster_bands = dataset->GetRasterCount();
 
   for (auto band_num = 1; band_num < raster_bands; band_num++) {
-    auto band = dataset->GetRasterBand(band_num);
-    // band_matrix pixels(raster_height, raster_width);
+    auto const band = dataset->GetRasterBand(band_num);
     auto pixels = band_matrix(raster_height, raster_width);
 
-    auto error = band->RasterIO(
+    auto const error = band->RasterIO(
       GF_Read,
       0,
       0,
@@ -44,20 +43,18 @@ int main() {
       std::cout << "read error: " << error << "\n";
     }
 
-    auto image_width = static_cast<size_t>(std::ceil(raster_width / 2));
-    auto image_height = static_cast<size_t>(std::ceil(raster_height / 2));
+    auto const image_width = static_cast<uint>(std::ceil(raster_width / 2));
+    auto const image_height = static_cast<uint>(std::ceil(raster_height / 2));
 
     auto r = band_matrix(image_height, image_width);
     auto g = band_matrix(image_height, image_width);
     auto b = band_matrix(image_height, image_width);
 
-    for (auto row = 0; row < raster_height; row++) {
-      for (auto col = 0; col < raster_width; col++) {
-        auto pixel = pixels(row, col);
-        auto mapped_row = static_cast<size_t>(std::ceil(row / 2));
-        auto mapped_col = static_cast<size_t>(std::ceil(col / 2));
     for (auto col = 0; col < raster_width; col++) {
       for (auto row = 0; row < raster_height; row++) {
+        auto const pixel = pixels(row, col);
+        auto const mapped_row = static_cast<uint>(std::floor(row / 2));
+        auto const mapped_col = static_cast<uint>(std::floor(col / 2));
 
         auto const is_upper_half = (row % 2 != 0);
         auto const is_left_half = (col % 2 != 0);
