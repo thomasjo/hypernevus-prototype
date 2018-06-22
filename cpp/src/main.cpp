@@ -56,6 +56,8 @@ int main() {
         auto pixel = pixels(row, col);
         auto mapped_row = static_cast<size_t>(std::ceil(row / 2));
         auto mapped_col = static_cast<size_t>(std::ceil(col / 2));
+    for (auto col = 0; col < raster_width; col++) {
+      for (auto row = 0; row < raster_height; row++) {
 
         if (row % 2 == 0) {
           if (col % 2 == 0) {
