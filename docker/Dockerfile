@@ -53,6 +53,11 @@ RUN git clone https://github.com/silmae/fpipy.git \
 RUN curl -Lo /tmp/cmake.sh https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.sh
 RUN sh /tmp/cmake.sh --prefix=/usr/local --skip-license
 
+# Install Eigen3 library.
+RUN apt-get update && apt-get install --yes \
+    libeigen3-dev \
+&&  rm -rf /var/lib/apt/lists/*
+
 # Explictly set the working directory to something reasonable.
 WORKDIR /root
 
