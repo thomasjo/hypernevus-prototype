@@ -59,14 +59,17 @@ int main() {
     for (auto col = 0; col < raster_width; col++) {
       for (auto row = 0; row < raster_height; row++) {
 
-        if (row % 2 == 0) {
-          if (col % 2 == 0) {
+        auto const is_upper_half = (row % 2 != 0);
+        auto const is_left_half = (col % 2 != 0);
+
+        if (is_upper_half) {
+          if (is_left_half) {
             b(mapped_row, mapped_col) = pixel;
           } else {
             g(mapped_row, mapped_col) = (g(mapped_row, mapped_col) + pixel) / 2;
           }
         } else {
-          if (col % 2 == 0) {
+          if (is_left_half) {
             g(mapped_row, mapped_col) = pixel;
           } else {
             r(mapped_row, mapped_col) = pixel;
