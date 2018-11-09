@@ -1,6 +1,7 @@
-# Intended to be used together with a custom TensorFlow container image;
-# https://github.com/thomasjo/dockerfiles/tree/master/tensorflow
-FROM tensorflow:latest AS default
+FROM ubuntu:18.04 AS default
+
+# Ensure apt-get is in noninteractive mode during build.
+ARG DEBIAN_FRONTEND=interactive
 
 # Ensure all base packages are up-to-date.
 RUN apt-get update && apt-get upgrade --yes
@@ -14,10 +15,18 @@ RUN apt-get update && apt-get install --yes \
     software-properties-common \
 &&  rm -rf /var/lib/apt/lists/*
 
+# Install CMake from binary tarball.
+RUN curl -Lo /tmp/cmake.sh https://cmake.org/files/v3.12/cmake-3.12.4-Linux-x86_64.sh
+RUN sh /tmp/cmake.sh --prefix=/usr/local --skip-license
+
+# Install Eigen3 library.
+RUN apt-get update && apt-get install --yes \
+    libeigen3-dev \
+&&  rm -rf /var/lib/apt/lists/*
+
 # Install GDAL development dependencies.
-RUN add-apt-repository -y ppa:ubuntugis/ubuntugis-unstable \
-&&  apt-get update && apt-get install --yes \
-    libgdal-dev=2.2.2+dfsg-1~xenial1 \
+RUN apt-get update && apt-get install --yes \
+    libgdal-dev=2.2.3+dfsg-2 \
 &&  rm -rf /var/lib/apt/lists/*
 
 # Expose GDAL include paths to C/C++ toolchain.
@@ -26,15 +35,19 @@ ENV CPLUS_INCLUDE_PATH=/usr/include/gdal \
 
 # Install Python 3 development headers, etc.
 RUN apt-get update && apt-get install --yes \
+    python3 \
     python3-dev \
 &&  rm -rf /var/lib/apt/lists/*
+
+# Install latest version of pip.
+RUN curl https://bootstrap.pypa.io/get-pip.py | python3
 
 # Install required Python 3 packages.
 RUN apt-get update && apt-get install --yes \
     python3-pyqt5 \
 &&  pip3 install --no-cache-dir \
     click \
-    gdal==2.2.2 \
+    gdal==2.2.3 \
     h5py \
     keras \
     matplotlib \
@@ -46,17 +59,11 @@ RUN apt-get update && apt-get install --yes \
 
 # Install fpipy package from its GitHub repository.
 RUN git clone https://github.com/silmae/fpipy.git \
-&&  cd fpipy && python3 setup.py install \
+# Patch a small bug in setup.py.
+# TODO: Report upstream.
+&&  sed -i "s/include=\['fpipy'\]/include=\['fpipy','fpipy\.\*'\]/g" fpipy/setup.py \
+&&  cd fpipy && pip3 install --no-cache-dir . \
 &&  cd .. && rm -rf fpipy
-
-# Install CMake from binary tarball.
-RUN curl -Lo /tmp/cmake.sh https://cmake.org/files/v3.11/cmake-3.11.4-Linux-x86_64.sh
-RUN sh /tmp/cmake.sh --prefix=/usr/local --skip-license
-
-# Install Eigen3 library.
-RUN apt-get update && apt-get install --yes \
-    libeigen3-dev \
-&&  rm -rf /var/lib/apt/lists/*
 
 # Explictly set the working directory to something reasonable.
 WORKDIR /root
