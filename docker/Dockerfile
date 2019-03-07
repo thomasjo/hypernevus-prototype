@@ -49,9 +49,9 @@ RUN apt-get update && apt-get install --yes \
     click \
     gdal==2.2.3 \
     h5py \
-    keras \
     matplotlib \
     pandas \
+    pyamg \
     scikit-image \
     scikit-learn \
     scipy \
@@ -70,6 +70,9 @@ WORKDIR /root
 
 # Copy project files into the image.
 ADD python /root/python
+
+# Prevent Python from writing byte code to disk.
+ENV PYTHONDONTWRITEBYTECODE=true
 
 # ---------------------------------------------------------------------------- #
 
