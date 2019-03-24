@@ -3,17 +3,16 @@ preprocess_and_export.py
 
 Usage:
   preprocess_and_export.py [--data-dir=<path>] [--output-dir=<path>]
-                           [--skip-existing=<bool>]
+                           [--overwrite]
 
 Options:
-  -h --help               Show this screen.
-  --data-dir=<path>       The source directory to recursively glob for raw
-                          hyperspectral cubes to process.
-                          [default: /root/data/HSPC1]
-  --output-dir=<path>     The output directory for all processed cubes.
-                          [default: /root/output/processed]
-  --skip-existing=<bool>  Skip files that have already been processed.
-                          [default: true]
+  -h --help            Show this screen.
+  --data-dir=<path>    The source directory to recursively glob for raw
+                       hyperspectral cubes to process.
+                       [default: /root/data/HSPC1]
+  --output-dir=<path>  The output directory for all processed cubes.
+                       [default: /root/output/processed]
+  --overwrite          Overwrite all previously exported files.
 """
 
 import sys
@@ -26,7 +25,6 @@ import matplotlib.collections as collections
 import matplotlib.patches as patches
 import matplotlib.pyplot as plt
 
-from distutils.util import strtobool
 from docopt import docopt
 from pathlib import Path
 
@@ -44,7 +42,7 @@ def _radiance_cube(hdr_file):
     return rad_dataset.radiance.values[row_crop, col_crop].copy()
 
 
-def process_directory(data_dir, output_dir, skip_existing=True):
+def process_directory(data_dir, output_dir, overwrite=False):
     for raw_file in data_dir.rglob("RawMeasurementCube.hdr"):
         cube_dir = raw_file.parents[0]
         category = raw_file.parents[1].name
@@ -52,11 +50,11 @@ def process_directory(data_dir, output_dir, skip_existing=True):
         output_file = output_dir / category / "{}.npy".format(cube_dir.name)
         output_file.parent.mkdir(parents=True, exist_ok=True)
 
-        if skip_existing and output_file.exists():
-            print("  skipping: {}".format(raw_file))
+        if output_file.exists() and overwrite is False:
+            print("Skipping: {}".format(raw_file))
             continue
 
-        print("processing: {}".format(raw_file))
+        print("Processing: {}".format(raw_file))
 
         # Load the raw measurements of the lesion image, and convert to
         # radiance.
@@ -95,12 +93,12 @@ if __name__ == "__main__":
     args = docopt(__doc__)
     data_dir = Path(args["--data-dir"])
     output_dir = Path(args["--output-dir"])
-    skip_existing = strtobool(args["--skip-existing"])
+    overwrite = args["--overwrite"]
 
     print()
     print("Source directory: {}".format(data_dir))
     print("Output directory: {}".format(output_dir))
 
     print("-" * 72)
-    process_directory(data_dir, output_dir, skip_existing)
+    process_directory(data_dir, output_dir, overwrite)
     print("-" * 72)
