@@ -27,7 +27,11 @@ import matplotlib.pyplot as plt
 
 from docopt import docopt
 from pathlib import Path
+from shutil import get_terminal_size
 
+
+# Dimensions of the attached terminal session. Useful when printing stuff.
+TTY_COLS, _ = get_terminal_size()
 
 # Crop slices for images by row and column axes.
 ROW_CROP = slice(160, 1160)
@@ -100,6 +104,6 @@ if __name__ == "__main__":
     print("Source directory: {}".format(data_dir))
     print("Output directory: {}".format(output_dir))
 
-    print("-" * 72)
+    print("-" * TTY_COLS)
     process_directory(data_dir, output_dir, overwrite)
-    print("-" * 72)
+    print("-" * TTY_COLS)
