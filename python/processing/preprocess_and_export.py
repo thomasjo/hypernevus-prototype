@@ -29,8 +29,9 @@ from docopt import docopt
 from pathlib import Path
 
 
-row_crop = slice(160, 1160)
-col_crop = slice(500, 1500)
+# Crop slices for images by row and column axes.
+ROW_CROP = slice(160, 1160)
+COL_CROP = slice(500, 1500)
 
 
 def _radiance_cube(hdr_file):
@@ -39,7 +40,7 @@ def _radiance_cube(hdr_file):
         raw_dataset = fpi.read_ENVI_cfa(str(hdr_file))
 
     rad_dataset = fpi.raw_to_radiance(raw_dataset)
-    return rad_dataset.radiance.values[row_crop, col_crop].copy()
+    return rad_dataset.radiance.values[ROW_CROP, COL_CROP].copy()
 
 
 def process_directory(data_dir, output_dir, overwrite=False):
@@ -84,7 +85,7 @@ def process_directory(data_dir, output_dir, overwrite=False):
         rgb_file = cube_dir / "RGB_Image.png"
         if rgb_file.exists():
             rgb_image = plt.imread(str(rgb_file))
-            rgb_cropped = rgb_image[row_crop, col_crop]
+            rgb_cropped = rgb_image[ROW_CROP, COL_CROP]
             rgb_output_file = output_file.with_suffix(".png")
             plt.imsave(str(rgb_output_file), rgb_cropped)
 
