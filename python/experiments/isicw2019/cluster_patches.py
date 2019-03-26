@@ -12,16 +12,9 @@ from sklearn.cluster import spectral_clustering
 
 PATCH_SIZE = 125
 
-# Make experiments reproducible.
-np.random.seed(42)
-
 data_dir = Path("/root/output/processed")
 output_dir = Path("/root/output/isicw2019/cluster_patches")
 cache_dir = output_dir / ".cache"
-
-# Ensure output directories exists.
-output_dir.mkdir(parents=True, exist_ok=True)
-cache_dir.mkdir(parents=True, exist_ok=True)
 
 
 def find_image_file(shasum):
@@ -89,6 +82,13 @@ def _cache_id(*args):
 
 
 if __name__ == "__main__":
+    # Make experiments reproducible.
+    np.random.seed(42)
+
+    # Ensure output directories exists.
+    output_dir.mkdir(parents=True, exist_ok=True)
+    cache_dir.mkdir(parents=True, exist_ok=True)
+
     shasum_crop = {
         "775d2a3": (340, 360),
         "1425595": (364, 316),
