@@ -49,6 +49,7 @@ RUN apt-get update && apt-get install --yes \
     click \
     gdal==2.2.3 \
     h5py \
+    imageio \
     matplotlib \
     pandas \
     pyamg \
