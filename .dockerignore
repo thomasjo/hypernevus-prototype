@@ -1,10 +1,13 @@
 # Project directories.
 .git
-data
-script
-vendor
+.vscode
+/bin
+/data
+/output
+/vendor
 
 # Project files.
 .envrc
 .gitignore
+.python-version
 README.md
